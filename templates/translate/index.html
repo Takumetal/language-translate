@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Language Translate App</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.bundle.min.js" integrity="sha384-pjaaA8dDz/5BgdFUPX6M/9SUZv4d12SUPF0axWc+VRZkx5xU3daN+lYb49+Ax+Tl" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h1>言語翻訳(日本語&nbsp;<i class="fa fa-exchange" aria-hidden="true"></i>&nbsp;英語)</h1>
+                <hr>
+                <div class="col-sm-12">
+                    <form method="POST" id="form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <div class="col-sm-5 inline-textarea">
+                                <label for="source"><span id="source-label">
+                                    {% if source_lang == 'ja' %}日本語{% else %}英語{% endif %}を入力</span>
+                                    <small>(Enterを押すと翻訳されます)</small></label>
+                                <textarea class="form-control" id="source" rows="5" placeholder="翻訳したい言葉を入力" name="source"></textarea>
+                            </div>
+                            <div class="col-sm-1 inline-textarea" id="forward">
+                                <i id="lang-change" class="fa fa-exchange" aria-hidden="true"></i>
+                            </div>
+                            <div class="col-sm-5 inline-textarea">
+                                <label for="source">翻訳結果</label>
+                                <textarea class="form-control" id="target" rows="5" placeholder="翻訳結果が表示されます" name="target" readonly></textarea>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-danger inline-textarea">クリア</button>
+                        <input type="hidden" name="source_lang" value="{{ source_lang }}">
+                        <input type="hidden" name="target_lang" value="{% if source_lang == 'ja' %}en{% else %}ja{% endif %}">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<style>
+    .container {
+        text-align: center;
+        margin-top: 3%;
+    }
+    .inline-textarea {
+        display: inline-block;
+    }
+    #forward {
+        vertical-align: middle;
+    }
+    button {
+        float: left;
+        margin-left: 6%;
+    }
+    #lang-change:hover {
+        cursor: pointer;
+    }
+</style>
+<script>
+    $(document).ready(function() {
+        $('#source').focus();
+
+        $('#source').keydown(function(e) {
+            if (e.which === 13) {
+                var form = $('#form');
+                $.ajax({
+                    url: '/',
+                    type: 'POST',
+                    data: form.serialize(),
+                })
+                .done((data) => {
+                    console.log(data);
+                    $('#target').val(data);
+                })
+                .fail((data) => {
+                    console.log(data);
+                })
+                // return false;
+            }
+        });
+
+        $('button').click(function(e) {
+            e.preventDefault();
+            $('#source').val("");
+            $('#target').val("");
+        });
+
+        $('#lang-change').click(function(e) {
+            e.preventDefault();
+            $('#source').val("");
+            $('#target').val("");
+
+            if ($('input[name=source_lang]').attr('value') === 'ja') {
+                $('#source-label').text("英語を入力");
+                $('input[name=source_lang]').prop('value', 'en');
+                $('input[name=target_lang]').prop('value', 'ja');
+            } else {
+                $('#source-label').text("日本語を入力");
+                $('input[name=source_lang]').prop('value', 'ja');
+                $('input[name=target_lang]').prop('value', 'en');
+            }
+        });
+    });
+</script>
+</html>
