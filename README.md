@@ -39,7 +39,7 @@ Install required libraries using pip
 $ pip install -r requirements.txt 
 ```
 4. IBM WatsonのAPIキーを取得して、以下に設定する  
-Get the API key for the Azure Bing Image Search API and set it as follows.
+Get the API key for the IBM Watson and set it as follows.
 ```
 translate/views.py
 iam_apikey='',
